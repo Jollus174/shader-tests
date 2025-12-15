@@ -15,7 +15,8 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 		if (!containerRef.current || !canvasRef.current) return;
 
 		// Initialize GlslCanvas
-		const sandbox = new GlslCanvas(canvasRef.current);
+		const canvas = canvasRef.current;
+		const sandbox = new GlslCanvas(canvas);
 		glslCanvasRef.current = sandbox;
 
 		// Handle window resize
@@ -34,11 +35,52 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 			resizeObserver.observe(containerRef.current);
 		}
 
+		// Handle mouse/touch interactions for u_mouse
+		let isPointerDown = false;
+		const setMouseUniform = (event: PointerEvent) => {
+			if (!glslCanvasRef.current) return;
+			const rect = canvas.getBoundingClientRect();
+			const x = ((event.clientX - rect.left) / rect.width) * canvas.width;
+			const y = ((event.clientY - rect.top) / rect.height) * canvas.height;
+			glslCanvasRef.current.setUniform('u_mouse', x, y);
+		};
+
+		const handlePointerDown = (event: PointerEvent) => {
+			isPointerDown = true;
+			canvas.setPointerCapture(event.pointerId);
+			setMouseUniform(event);
+			console.log('pointer down');
+		};
+
+		const handlePointerMove = (event: PointerEvent) => {
+			if (!isPointerDown) return;
+			setMouseUniform(event);
+		};
+
+		const handlePointerUp = (event: PointerEvent) => {
+			if (isPointerDown) {
+				setMouseUniform(event);
+			}
+			isPointerDown = false;
+			canvas.releasePointerCapture(event.pointerId);
+		};
+
+		canvas.addEventListener('pointerdown', handlePointerDown);
+		canvas.addEventListener('pointermove', handlePointerMove);
+		canvas.addEventListener('pointerup', handlePointerUp);
+		canvas.addEventListener('pointerleave', handlePointerUp);
+		canvas.addEventListener('pointercancel', handlePointerUp);
+
 		// Initial resize
 		handleResize();
 
 		return () => {
 			resizeObserver.disconnect();
+			canvas.removeEventListener('pointerdown', handlePointerDown);
+			canvas.removeEventListener('pointermove', handlePointerMove);
+			canvas.removeEventListener('pointerup', handlePointerUp);
+			canvas.removeEventListener('pointerleave', handlePointerUp);
+			canvas.removeEventListener('pointercancel', handlePointerUp);
 		};
 	}, []); // Only run once on mount
 
@@ -55,5 +97,7 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 		</div>
 	);
 }
+
+ShaderViewer.displayName = 'ShaderViewer';
 
 export default ShaderViewer;
