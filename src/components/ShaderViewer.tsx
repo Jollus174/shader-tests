@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import GlslCanvas from 'glslCanvas';
 
 interface ShaderViewerProps {
@@ -9,6 +9,12 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const glslCanvasRef = useRef<GlslCanvas | null>(null);
+	const [touchIndicator, setTouchIndicator] = useState<{
+		x: number;
+		y: number;
+		visible: boolean;
+		fading: boolean;
+	}>({ x: 0, y: 0, visible: false, fading: false });
 
 	// Initialize canvas and GlslCanvas once
 	useEffect(() => {
@@ -45,21 +51,35 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 			glslCanvasRef.current.setUniform('u_mouse', x, y);
 		};
 
+		const updateTouchIndicator = (event: PointerEvent) => {
+			const rect = canvas.getBoundingClientRect();
+			const x = event.clientX - rect.left;
+			const y = event.clientY - rect.top;
+			setTouchIndicator({ x, y, visible: true, fading: false });
+		};
+
 		const handlePointerDown = (event: PointerEvent) => {
 			isPointerDown = true;
 			canvas.setPointerCapture(event.pointerId);
 			setMouseUniform(event);
-			console.log('pointer down');
+			updateTouchIndicator(event);
 		};
 
 		const handlePointerMove = (event: PointerEvent) => {
 			if (!isPointerDown) return;
 			setMouseUniform(event);
+			updateTouchIndicator(event);
 		};
 
 		const handlePointerUp = (event: PointerEvent) => {
 			if (isPointerDown) {
 				setMouseUniform(event);
+				// Start fade out animation
+				setTouchIndicator((prev) => ({ ...prev, fading: true }));
+				// Hide after animation completes
+				setTimeout(() => {
+					setTouchIndicator((prev) => ({ ...prev, visible: false, fading: false }));
+				}, 200);
 			}
 			isPointerDown = false;
 			canvas.releasePointerCapture(event.pointerId);
@@ -94,6 +114,15 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 	return (
 		<div ref={containerRef} className="shader-viewer">
 			<canvas ref={canvasRef} />
+			{touchIndicator.visible && (
+				<div
+					className={`touch-indicator ${touchIndicator.fading ? 'fading' : ''}`}
+					style={{
+						left: `${touchIndicator.x}px`,
+						top: `${touchIndicator.y}px`
+					}}
+				/>
+			)}
 		</div>
 	);
 }
