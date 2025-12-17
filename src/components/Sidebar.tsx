@@ -47,19 +47,26 @@ function Sidebar({ selectedShaderId, onSelectShader }: SidebarProps) {
 					<div className="sidebar-content">
 						<h2 className="sidebar-title">Shader Demos</h2>
 						<nav className="sidebar-nav">
-							<ul className="shader-list">
+							<div className="shader-list">
 								{shaderList.map((shader) => (
-									<li key={shader.id} className="shader-item">
-										<button
-											className={`shader-button ${selectedShaderId === shader.id ? 'active' : ''}`}
-											onClick={() => handleShaderClick(shader)}
-										>
-											<span className="shader-name">{shader.name}</span>
-											{shader.description && <span className="shader-description">{shader.description}</span>}
-										</button>
-									</li>
+									<div>
+										<h3 className="shader-list-title">{shader.label}</h3>
+										<ul key={shader.label} className="shader-list">
+											{shader.shaders.map((shader) => (
+												<li key={shader.id} className="shader-item">
+													<button
+														className={`shader-button ${selectedShaderId === shader.id ? 'active' : ''}`}
+														onClick={() => handleShaderClick(shader)}
+													>
+														<span className="shader-name">{shader.name}</span>
+														{shader.description && <span className="shader-description">{shader.description}</span>}
+													</button>
+												</li>
+											))}
+										</ul>
+									</div>
 								))}
-							</ul>
+							</div>
 						</nav>
 					</div>
 					<ToggleButton isOpen={isSidebarOpen} onClick={handleToggleSidebar} />

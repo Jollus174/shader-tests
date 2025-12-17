@@ -6,40 +6,96 @@ export interface Shader {
 	description: string;
 }
 
-export const shaderList: Shader[] = [
+export const shaderList: {
+	label: string;
+	shaders: Shader[];
+}[] = [
 	{
-		id: 'gradient',
-		name: 'Gradient',
-		file: () => import('../shaders/gradient.frag?raw'),
-		filePath: '/src/shaders/gradient.frag',
-		description: 'Simple color gradient'
+		label: 'Flags',
+		shaders: [
+			{
+				id: 'pasta',
+				name: 'France',
+				file: () => import('../shaders/flags/pasta.frag?raw'),
+				filePath: '/src/shaders/flags/pasta.frag',
+				description: ''
+			},
+			{
+				id: 'bratswurst',
+				name: 'Germany',
+				file: () => import('../shaders/flags/bratswurst.frag?raw'),
+				filePath: '/src/shaders/flags/bratswurst.frag',
+				description: ''
+			}
+		]
 	},
 	{
-		id: 'animated-circle',
-		name: 'Animated Circle',
-		file: () => import('../shaders/animated-circle.frag?raw'),
-		filePath: '/src/shaders/animated-circle.frag',
-		description: 'Animated circle using u_time'
+		label: 'Gradients',
+		shaders: [
+			{
+				id: 'gradient',
+				name: 'Gradient',
+				file: () => import('../shaders/gradients/gradient.frag?raw'),
+				filePath: '/src/shaders/gradients/gradient.frag',
+				description: 'Follows mouse'
+			},
+			{
+				id: 'gradient-ripple',
+				name: 'Gradient Ripple',
+				file: () => import('../shaders/gradients/gradient-ripple.frag?raw'),
+				filePath: '/src/shaders/gradients/gradient-ripple.frag',
+				description: ''
+			},
+			{
+				id: 'color-gamut',
+				name: 'Color Gamut',
+				file: () => import('../shaders/gradients/color-gamut.frag?raw'),
+				filePath: '/src/shaders/gradients/color-gamut.frag',
+				description: ''
+			},
+			{
+				id: 'bratswurst-gradient',
+				name: 'Germany Gradient',
+				file: () => import('../shaders/gradients/bratswurst-gradient.frag?raw'),
+				filePath: '/src/shaders/gradients/bratswurst-gradient.frag',
+				description: ''
+			}
+		]
 	},
 	{
-		id: 'noise-pattern',
-		name: 'Noise Pattern',
-		file: () => import('../shaders/noise-pattern.frag?raw'),
-		filePath: '/src/shaders/noise-pattern.frag',
-		description: 'Noise-based pattern'
+		label: 'Animated',
+		shaders: [
+			{
+				id: 'animated-circle',
+				name: 'Animated Circle',
+				file: () => import('../shaders/animated-circle.frag?raw'),
+				filePath: '/src/shaders/animated-circle.frag',
+				description: 'Animated circle using u_time'
+			}
+		]
 	},
 	{
-		id: 'wave-effect',
-		name: 'Wave Effect',
-		file: () => import('../shaders/wave-effect.frag?raw'),
-		filePath: '/src/shaders/wave-effect.frag',
-		description: 'Animated wave effect'
+		label: 'Patterns',
+		shaders: [
+			{
+				id: 'noise-pattern',
+				name: 'Noise Pattern',
+				file: () => import('../shaders/noise-pattern.frag?raw'),
+				filePath: '/src/shaders/noise-pattern.frag',
+				description: 'Noise-based pattern'
+			}
+		]
 	},
 	{
-		id: 'gradient-ripple',
-		name: 'Gradient Ripple',
-		file: () => import('../shaders/gradient-ripple.frag?raw'),
-		filePath: '/src/shaders/gradient-ripple.frag',
-		description: 'Gradient ripple effect'
+		label: 'Effects',
+		shaders: [
+			{
+				id: 'wave-effect',
+				name: 'Wave Effect',
+				file: () => import('../shaders/wave-effect.frag?raw'),
+				filePath: '/src/shaders/wave-effect.frag',
+				description: 'Animated wave effect'
+			}
+		]
 	}
 ];

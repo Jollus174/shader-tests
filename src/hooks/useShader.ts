@@ -13,8 +13,8 @@ export function useShader(selectedShader: Shader) {
 			try {
 				if (forceFetch && import.meta.hot) {
 					// For HMR updates, fetch directly to bypass module cache
-					const fileName = selectedShader.filePath.split('/').pop();
-					const response = await fetch(`/src/shaders/${fileName}?t=${Date.now()}`, {
+					// Use the full filePath to handle subdirectories correctly
+					const response = await fetch(`${selectedShader.filePath}?t=${Date.now()}`, {
 						cache: 'no-store'
 					});
 
