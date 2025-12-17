@@ -34,5 +34,12 @@ export const shaderList: Shader[] = [
 		file: () => import('../shaders/wave-effect.frag?raw'),
 		filePath: '/src/shaders/wave-effect.frag',
 		description: 'Animated wave effect'
+	},
+	{
+		id: 'gradient-ripple',
+		name: 'Gradient Ripple',
+		file: () => import('../shaders/gradient-ripple.frag?raw'),
+		filePath: '/src/shaders/gradient-ripple.frag',
+		description: 'Gradient ripple effect'
 	}
 ];

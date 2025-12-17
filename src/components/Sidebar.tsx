@@ -24,6 +24,10 @@ function Sidebar({ selectedShaderId, onSelectShader }: SidebarProps) {
 
 	const handleShaderClick = (shader: Shader) => {
 		onSelectShader(shader);
+		// Close sidebar on mobile or touch devices when a shader is selected
+		if (window.innerWidth < 768) {
+			handleCloseSidebar();
+		}
 	};
 
 	useEffect(() => {
