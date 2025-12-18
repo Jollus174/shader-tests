@@ -75,6 +75,18 @@ export const shaderList: {
 		]
 	},
 	{
+		label: 'Shapes',
+		shaders: [
+			{
+				id: 'mondrian',
+				name: 'Mondrian',
+				file: () => import('../shaders/shapes/mondrian.frag?raw'),
+				filePath: '/src/shaders/shapes/mondrian.frag',
+				description: ''
+			}
+		]
+	},
+	{
 		label: 'Patterns',
 		shaders: [
 			{
