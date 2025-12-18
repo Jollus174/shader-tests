@@ -43,6 +43,8 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 
 		// Handle mouse/touch interactions for u_mouse
 		let isPointerDown = false;
+		let activePointerId: number | null = null;
+
 		const setMouseUniform = (event: PointerEvent) => {
 			if (!glslCanvasRef.current) return;
 			const rect = canvas.getBoundingClientRect();
@@ -59,19 +61,30 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 		};
 
 		const handlePointerDown = (event: PointerEvent) => {
+			// Prevent default to stop scrolling/zooming on touch devices
+			event.preventDefault();
 			isPointerDown = true;
+			activePointerId = event.pointerId;
 			canvas.setPointerCapture(event.pointerId);
 			setMouseUniform(event);
 			updateTouchIndicator(event);
 		};
 
 		const handlePointerMove = (event: PointerEvent) => {
-			if (!isPointerDown) return;
-			setMouseUniform(event);
-			updateTouchIndicator(event);
+			// Update uniform if this is the active pointer or if pointer is down
+			if (isPointerDown && (activePointerId === null || event.pointerId === activePointerId)) {
+				event.preventDefault();
+				setMouseUniform(event);
+				updateTouchIndicator(event);
+			}
 		};
 
 		const handlePointerUp = (event: PointerEvent) => {
+			// Only handle if this is the active pointer
+			if (activePointerId !== null && event.pointerId !== activePointerId) {
+				return;
+			}
+
 			if (isPointerDown) {
 				setMouseUniform(event);
 				// Start fade out animation
@@ -82,11 +95,15 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 				}, 200);
 			}
 			isPointerDown = false;
-			canvas.releasePointerCapture(event.pointerId);
+			activePointerId = null;
+			if (canvas.hasPointerCapture(event.pointerId)) {
+				canvas.releasePointerCapture(event.pointerId);
+			}
 		};
 
-		canvas.addEventListener('pointerdown', handlePointerDown);
-		canvas.addEventListener('pointermove', handlePointerMove);
+		// Use { passive: false } to allow preventDefault() on touch events
+		canvas.addEventListener('pointerdown', handlePointerDown, { passive: false });
+		canvas.addEventListener('pointermove', handlePointerMove, { passive: false });
 		canvas.addEventListener('pointerup', handlePointerUp);
 		canvas.addEventListener('pointerleave', handlePointerUp);
 		canvas.addEventListener('pointercancel', handlePointerUp);
@@ -96,8 +113,8 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 
 		return () => {
 			resizeObserver.disconnect();
-			canvas.removeEventListener('pointerdown', handlePointerDown);
-			canvas.removeEventListener('pointermove', handlePointerMove);
+			canvas.removeEventListener('pointerdown', handlePointerDown, { passive: false } as EventListenerOptions);
+			canvas.removeEventListener('pointermove', handlePointerMove, { passive: false } as EventListenerOptions);
 			canvas.removeEventListener('pointerup', handlePointerUp);
 			canvas.removeEventListener('pointerleave', handlePointerUp);
 			canvas.removeEventListener('pointercancel', handlePointerUp);
