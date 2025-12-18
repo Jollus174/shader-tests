@@ -48,11 +48,11 @@ function Sidebar({ selectedShaderId, onSelectShader }: SidebarProps) {
 						<h2 className="sidebar-title">Shader Demos</h2>
 						<nav className="sidebar-nav">
 							<div className="shader-list">
-								{shaderList.map((shader) => (
-									<div>
-										<h3 className="shader-list-title">{shader.label}</h3>
-										<ul key={shader.label} className="shader-list">
-											{shader.shaders.map((shader) => (
+								{shaderList.map((shaderGroup) => (
+									<div key={shaderGroup.label}>
+										<h3 className="shader-list-title">{shaderGroup.label}</h3>
+										<ul key={shaderGroup.label} className="shader-list">
+											{shaderGroup.shaders.map((shader) => (
 												<li key={shader.id} className="shader-item">
 													<button
 														className={`shader-button ${selectedShaderId === shader.id ? 'active' : ''}`}

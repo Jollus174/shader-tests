@@ -101,6 +101,12 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 			canvas.removeEventListener('pointerup', handlePointerUp);
 			canvas.removeEventListener('pointerleave', handlePointerUp);
 			canvas.removeEventListener('pointercancel', handlePointerUp);
+
+			// Clean up GlslCanvas reference
+			// Note: We don't explicitly lose the WebGL context here because it makes
+			// the canvas unusable. Instead, we rely on React's key prop to recreate
+			// the component (and thus the canvas) when needed, which naturally cleans up old contexts.
+			glslCanvasRef.current = null;
 		};
 	}, []); // Only run once on mount
 

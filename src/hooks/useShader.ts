@@ -11,6 +11,10 @@ export function useShader(selectedShader: Shader) {
 
 		const loadShader = async (forceFetch = false) => {
 			try {
+				if (!selectedShader || typeof selectedShader.file !== 'function') {
+					throw new Error('Invalid shader object');
+				}
+
 				if (forceFetch && import.meta.hot) {
 					// For HMR updates, fetch directly to bypass module cache
 					// Use the full filePath to handle subdirectories correctly
