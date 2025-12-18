@@ -14,17 +14,17 @@ export const shaderList: {
 		label: 'Flags',
 		shaders: [
 			{
-				id: 'pasta',
-				name: 'France',
-				file: () => import('../shaders/flags/pasta.frag?raw'),
-				filePath: '/src/shaders/flags/pasta.frag',
+				id: 'italy',
+				name: 'Italy',
+				file: () => import('../shaders/flags/italy.frag?raw'),
+				filePath: '/src/shaders/flags/italy.frag',
 				description: ''
 			},
 			{
-				id: 'bratswurst',
+				id: 'germany',
 				name: 'Germany',
-				file: () => import('../shaders/flags/bratswurst.frag?raw'),
-				filePath: '/src/shaders/flags/bratswurst.frag',
+				file: () => import('../shaders/flags/germany.frag?raw'),
+				filePath: '/src/shaders/flags/germany.frag',
 				description: ''
 			}
 		]
@@ -54,10 +54,10 @@ export const shaderList: {
 				description: ''
 			},
 			{
-				id: 'bratswurst-gradient',
+				id: 'germany-gradient',
 				name: 'Germany Gradient',
-				file: () => import('../shaders/gradients/bratswurst-gradient.frag?raw'),
-				filePath: '/src/shaders/gradients/bratswurst-gradient.frag',
+				file: () => import('../shaders/gradients/germany-gradient.frag?raw'),
+				filePath: '/src/shaders/gradients/germany-gradient.frag',
 				description: ''
 			}
 		]

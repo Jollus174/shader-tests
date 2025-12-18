@@ -8,7 +8,7 @@ import { useShader } from './hooks/useShader';
 import './App.css';
 
 function App() {
-	const [selectedShader, setSelectedShader] = useState<Shader>(shaderList[0].shaders[0]);
+	const [selectedShader, setSelectedShader] = useState<Shader>(shaderList[1].shaders[0]);
 	const { shaderCode, version: shaderVersion } = useShader(selectedShader);
 
 	const handleSelectShader = (shader: Shader) => {
