@@ -40,6 +40,13 @@ export const shaderList: {
 				description: 'Follows mouse'
 			},
 			{
+				id: 'gradient-animated-circle',
+				name: 'Gradient Animated Circle',
+				file: () => import('../shaders/gradients/gradient-animated-circle.frag?raw'),
+				filePath: '/src/shaders/gradients/gradient-animated-circle.frag',
+				description: 'Animated circle using u_time'
+			},
+			{
 				id: 'gradient-ripple',
 				name: 'Gradient Ripple',
 				file: () => import('../shaders/gradients/gradient-ripple.frag?raw'),
@@ -59,18 +66,6 @@ export const shaderList: {
 				file: () => import('../shaders/gradients/germany-gradient.frag?raw'),
 				filePath: '/src/shaders/gradients/germany-gradient.frag',
 				description: ''
-			}
-		]
-	},
-	{
-		label: 'Animated',
-		shaders: [
-			{
-				id: 'animated-circle',
-				name: 'Animated Circle',
-				file: () => import('../shaders/animated-circle.frag?raw'),
-				filePath: '/src/shaders/animated-circle.frag',
-				description: 'Animated circle using u_time'
 			}
 		]
 	},

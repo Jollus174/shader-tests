@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Shader } from '../data/shaderList';
+import { Link } from 'react-router-dom';
 import { shaderList } from '../data/shaderList';
 import ToggleButton from './ToggleButton';
 
@@ -8,10 +8,9 @@ import './Sidebar.css';
 
 interface SidebarProps {
 	selectedShaderId: string;
-	onSelectShader: (shader: Shader) => void;
 }
 
-function Sidebar({ selectedShaderId, onSelectShader }: SidebarProps) {
+function Sidebar({ selectedShaderId }: SidebarProps) {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
 	const handleToggleSidebar = () => {
@@ -22,8 +21,7 @@ function Sidebar({ selectedShaderId, onSelectShader }: SidebarProps) {
 		setIsSidebarOpen(false);
 	};
 
-	const handleShaderClick = (shader: Shader) => {
-		onSelectShader(shader);
+	const handleShaderClick = () => {
 		// Close sidebar on mobile or touch devices when a shader is selected
 		if (window.innerWidth < 768) {
 			handleCloseSidebar();
@@ -54,13 +52,14 @@ function Sidebar({ selectedShaderId, onSelectShader }: SidebarProps) {
 										<ul key={shaderGroup.label} className="shader-list">
 											{shaderGroup.shaders.map((shader) => (
 												<li key={shader.id} className="shader-item">
-													<button
+													<Link
+														to={`/${shader.id}`}
 														className={`shader-button ${selectedShaderId === shader.id ? 'active' : ''}`}
-														onClick={() => handleShaderClick(shader)}
+														onClick={handleShaderClick}
 													>
 														<span className="shader-name">{shader.name}</span>
 														{shader.description && <span className="shader-description">{shader.description}</span>}
-													</button>
+													</Link>
 												</li>
 											))}
 										</ul>
