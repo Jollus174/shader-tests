@@ -51,7 +51,14 @@ export const shaderList: {
 				name: 'Gradient Ripple',
 				file: () => import('../shaders/gradients/gradient-ripple.frag?raw'),
 				filePath: '/src/shaders/gradients/gradient-ripple.frag',
-				description: 'Follows mouse'
+				description: 'Morphs from circle to square depending on mouse position'
+			},
+			{
+				id: 'gradient-ripple-split',
+				name: 'Gradient Ripple Split',
+				file: () => import('../shaders/gradients/gradient-ripple-split.frag?raw'),
+				filePath: '/src/shaders/gradients/gradient-ripple-split.frag',
+				description: ''
 			},
 			{
 				id: 'color-gamut',
