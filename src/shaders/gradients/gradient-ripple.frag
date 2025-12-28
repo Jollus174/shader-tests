@@ -39,12 +39,13 @@ float gr_y_rad(vec2 xy, float cycles, float speed)
 
 void main() {
     vec2 uv = (2.0 * gl_FragCoord.xy - u_resolution.xy) / u_resolution.y;
+    vec2 mouse_uv = (2.0 * u_mouse.xy - u_resolution.xy) / u_resolution.y;
+    // Use mouse offset only if mouse is active (not at origin)
+    vec2 centered_uv = length(u_mouse) > 0.001 ? uv - mouse_uv : uv;
     float c;
 
     c = gr_x(uv, 5.0, 0.25);
-    // c = gr_y(uv, 5.0, 0.25);
-    // c = gr_x_rad(uv, 5.0, 0.25);
-    c = gr_y_rad(uv, 25.0, 0.25);
+    c = gr_y_rad(centered_uv, 25.0, 0.25);
 
     gl_FragColor = vec4(vec3(c), 1.0);
 }

@@ -49,7 +49,8 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 			if (!glslCanvasRef.current) return;
 			const rect = canvas.getBoundingClientRect();
 			const x = ((event.clientX - rect.left) / rect.width) * canvas.width;
-			const y = ((event.clientY - rect.top) / rect.height) * canvas.height;
+			// Flip y to match gl_FragCoord coordinate system (bottom-left origin)
+			const y = canvas.height - ((event.clientY - rect.top) / rect.height) * canvas.height;
 			glslCanvasRef.current.setUniform('u_mouse', x, y);
 		};
 
