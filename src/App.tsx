@@ -1,11 +1,14 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { Routes, Route, useParams, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import ShaderViewer from './components/ShaderViewer';
+import CodeEditor from './components/CodeEditor';
+import CodeToggleButton from './components/CodeToggleButton';
 import { shaderList, Shader } from './data/shaderList';
 import { useShader } from './hooks/useShader';
 
 // styles
+import './components/CodeEditor.css';
 import './App.css';
 
 // Helper function to find shader by ID
@@ -22,6 +25,11 @@ const defaultShader = shaderList[1].shaders[0];
 
 function ShaderRoute() {
 	const { shaderId } = useParams<{ shaderId?: string }>();
+	const [isEditorOpen, setIsEditorOpen] = useState(false);
+	const [editedShaderCode, setEditedShaderCode] = useState<string | null>(null);
+	const [debouncedShaderCode, setDebouncedShaderCode] = useState<string | null>(null);
+	const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
 	const selectedShader = useMemo(() => {
 		if (shaderId) {
 			const shader = findShaderById(shaderId);
@@ -32,6 +40,52 @@ function ShaderRoute() {
 
 	const { shaderCode, version: shaderVersion } = useShader(selectedShader);
 
+	// Sync editedShaderCode and debouncedShaderCode with shaderCode when shader changes
+	useEffect(() => {
+		if (shaderCode !== null) {
+			setEditedShaderCode(shaderCode);
+			setDebouncedShaderCode(shaderCode);
+			// Clear any pending debounce timer
+			if (debounceTimerRef.current) {
+				clearTimeout(debounceTimerRef.current);
+				debounceTimerRef.current = null;
+			}
+		}
+	}, [shaderCode]);
+
+	// Debounced handler for editor changes
+	const handleEditorChange = useCallback((value: string) => {
+		// Update editor value immediately for responsive UI
+		setEditedShaderCode(value);
+
+		// Debounce the shader code update to avoid excessive recompilation
+		if (debounceTimerRef.current) {
+			clearTimeout(debounceTimerRef.current);
+		}
+
+		debounceTimerRef.current = setTimeout(() => {
+			setDebouncedShaderCode(value);
+			debounceTimerRef.current = null;
+		}, 400);
+	}, []);
+
+	// Cleanup debounce timer on unmount
+	useEffect(() => {
+		return () => {
+			if (debounceTimerRef.current) {
+				clearTimeout(debounceTimerRef.current);
+			}
+		};
+	}, []);
+
+	const handleToggleEditor = useCallback(() => {
+		setIsEditorOpen((prev) => !prev);
+	}, []);
+
+	// Use debouncedShaderCode for rendering, editedShaderCode for editor display
+	const activeShaderCode = debouncedShaderCode !== null ? debouncedShaderCode : shaderCode;
+	const editorValue = editedShaderCode !== null ? editedShaderCode : shaderCode;
+
 	// Redirect if invalid shader ID
 	if (shaderId && !findShaderById(shaderId)) {
 		return <Navigate to={`/${defaultShader.id}`} replace />;
@@ -40,14 +94,20 @@ function ShaderRoute() {
 	return (
 		<div className="app">
 			<Sidebar selectedShaderId={selectedShader.id} />
-			<main className="main-content">
+			<main className={`main-content ${isEditorOpen ? 'editor-open' : ''}`}>
 				<div className="shader-container">
-					{shaderCode ? (
-						<ShaderViewer key={shaderVersion} shaderCode={shaderCode} />
+					{activeShaderCode ? (
+						<ShaderViewer key={shaderVersion} shaderCode={activeShaderCode} />
 					) : (
 						<div className="loading">Loading shader...</div>
 					)}
 				</div>
+				{isEditorOpen && editorValue && (
+					<div className="code-editor-container">
+						<CodeEditor value={editorValue} onChange={handleEditorChange} />
+					</div>
+				)}
+				<CodeToggleButton isOpen={isEditorOpen} onClick={handleToggleEditor} />
 			</main>
 		</div>
 	);

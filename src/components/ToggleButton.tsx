@@ -6,7 +6,7 @@ interface ToggleButtonProps {
 function ToggleButton({ isOpen, onClick }: ToggleButtonProps) {
 	return (
 		<button
-			className="toggle-button"
+			className="btn toggle-button"
 			onClick={onClick}
 			aria-label={isOpen ? 'Close sidebar' : 'Open sidebar'}
 			aria-expanded={isOpen}
