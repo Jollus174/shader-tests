@@ -17,9 +17,11 @@ void main() {
   st.x *= u_resolution.x / u_resolution.y;
 
   // Distance field
-  d = length(min(abs(st) - 1.0 , 0.0));
+  d = length(min(abs(st) - 1.0, 0.0));
 
   // Visualise distance field with outward animation
   float speed = -0.5;
-  gl_FragColor = vec4(vec3(fract(d * 10.0 - u_time * speed)), 1.0);
+  float pattern = fract(d * 10.0 - u_time * speed);
+  color = vec3(pattern, pattern, pattern);
+  gl_FragColor = vec4(color, 1.0);
 }

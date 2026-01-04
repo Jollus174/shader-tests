@@ -1,13 +1,16 @@
+:root {
+	--code-editor-height: clamp(200px, 40dvh, 60dvh);
+}
+
 .code-editor-container {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	height: 40vh;
-	min-height: 200px;
-	max-height: 60vh;
+	height: var(--code-editor-height);
 	background-color: #1e1e1e;
 	border-top: 1px solid rgba(255 255 255 / 0.1);
 	overflow: auto;
+	flex-shrink: 0;
 
 	.cm-editor {
 		flex: 1;
@@ -61,7 +64,7 @@
 	cursor: pointer;
 
 	.editor-open & {
-		bottom: calc(1rem + max(40vh, 200px));
+		bottom: calc(1rem + var(--code-editor-height));
 	}
 
 	.code-toggle-button-text {

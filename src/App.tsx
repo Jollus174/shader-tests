@@ -40,6 +40,10 @@ function ShaderRoute() {
 
 	const { shaderCode, version: shaderVersion } = useShader(selectedShader);
 
+	// Use debouncedShaderCode for rendering, editedShaderCode for editor display
+	const activeShaderCode = debouncedShaderCode !== null ? debouncedShaderCode : shaderCode;
+	const editorValue = editedShaderCode !== null ? editedShaderCode : shaderCode;
+
 	// Sync editedShaderCode and debouncedShaderCode with shaderCode when shader changes
 	useEffect(() => {
 		if (shaderCode !== null) {
@@ -81,10 +85,6 @@ function ShaderRoute() {
 	const handleToggleEditor = useCallback(() => {
 		setIsEditorOpen((prev) => !prev);
 	}, []);
-
-	// Use debouncedShaderCode for rendering, editedShaderCode for editor display
-	const activeShaderCode = debouncedShaderCode !== null ? debouncedShaderCode : shaderCode;
-	const editorValue = editedShaderCode !== null ? editedShaderCode : shaderCode;
 
 	// Redirect if invalid shader ID
 	if (shaderId && !findShaderById(shaderId)) {
