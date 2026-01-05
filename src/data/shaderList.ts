@@ -85,6 +85,13 @@ export const shaderList: {
 				file: () => import('../shaders/shapes/mondrian.frag?raw'),
 				filePath: '/src/shaders/shapes/mondrian.frag',
 				description: ''
+			},
+			{
+				id: 'pentagon-twirl',
+				name: 'Pentagon Twirl',
+				file: () => import('../shaders/shapes/pentagon-twirl.frag?raw'),
+				filePath: '/src/shaders/shapes/pentagon-twirl.frag',
+				description: 'Follows the mouse slightly'
 			}
 		]
 	},
