@@ -108,8 +108,8 @@ void main() {
     mouse = mouse - 0.5;
     mouse.x *= u_resolution.x / u_resolution.y;
     
-    // Initialize color to black background
-    vec3 color = vec3(0.0);
+    // Initialize color
+    vec3 color = COLOR_RED;
     
     // Render multiple layers of pentagons with increasing sizes and different colors
     // Render from largest to smallest so smaller pentagons appear on top
