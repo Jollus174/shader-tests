@@ -9,6 +9,7 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const glslCanvasRef = useRef<GlslCanvas | null>(null);
+	const shaderCodeRef = useRef<string | null>(null);
 	const [touchIndicator, setTouchIndicator] = useState<{
 		x: number;
 		y: number;
@@ -16,24 +17,86 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 		fading: boolean;
 	}>({ x: 0, y: 0, visible: false, fading: false });
 
+	// Keep shaderCode ref in sync with prop
+	useEffect(() => {
+		shaderCodeRef.current = shaderCode;
+	}, [shaderCode]);
+
+	// Reusable function to load shader with proper dimension checking
+	const loadShaderWithDimensions = (code: string | null) => {
+		if (!glslCanvasRef.current || !code || !canvasRef.current || !containerRef.current) {
+			return;
+		}
+
+		const width = containerRef.current.offsetWidth;
+		const height = containerRef.current.offsetHeight;
+
+		if (width > 0 && height > 0) {
+			canvasRef.current.width = width;
+			canvasRef.current.height = height;
+			// Use requestAnimationFrame to ensure WebGL context is ready
+			requestAnimationFrame(() => {
+				if (glslCanvasRef.current && code) {
+					glslCanvasRef.current.load(code);
+				}
+			});
+		} else {
+			// If dimensions aren't ready yet, wait a frame and try again
+			requestAnimationFrame(() => {
+				if (glslCanvasRef.current && code && canvasRef.current && containerRef.current) {
+					const w = containerRef.current.offsetWidth;
+					const h = containerRef.current.offsetHeight;
+					if (w > 0 && h > 0) {
+						canvasRef.current.width = w;
+						canvasRef.current.height = h;
+						glslCanvasRef.current.load(code);
+					}
+				}
+			});
+		}
+	};
+
 	// Initialize canvas and GlslCanvas once
 	useEffect(() => {
 		if (!containerRef.current || !canvasRef.current) return;
 
-		// Initialize GlslCanvas
 		const canvas = canvasRef.current;
-		const sandbox = new GlslCanvas(canvas);
-		glslCanvasRef.current = sandbox;
 
 		// Handle window resize
 		const handleResize = () => {
 			if (canvasRef.current && containerRef.current) {
 				const width = containerRef.current.offsetWidth;
 				const height = containerRef.current.offsetHeight;
-				canvasRef.current.width = width;
-				canvasRef.current.height = height;
+				if (width > 0 && height > 0) {
+					canvasRef.current.width = width;
+					canvasRef.current.height = height;
+				}
 			}
 		};
+
+		// Ensure canvas is sized before creating GlslCanvas
+		handleResize();
+
+		// Use requestAnimationFrame to ensure dimensions are set before initializing GlslCanvas
+		// This is important when switching shaders, as the component remounts
+		requestAnimationFrame(() => {
+			if (!canvasRef.current || !containerRef.current) return;
+
+			// Double-check dimensions are set
+			handleResize();
+
+			// Initialize GlslCanvas after ensuring canvas is ready
+			const sandbox = new GlslCanvas(canvas);
+			glslCanvasRef.current = sandbox;
+
+			// If shader code is already available, load it now
+			// We use shaderCodeRef to get the current value (not stale closure value)
+			if (shaderCodeRef.current) {
+				requestAnimationFrame(() => {
+					loadShaderWithDimensions(shaderCodeRef.current);
+				});
+			}
+		});
 
 		// Use ResizeObserver for better resize handling
 		const resizeObserver = new ResizeObserver(handleResize);
@@ -109,7 +172,7 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 		canvas.addEventListener('pointerleave', handlePointerUp);
 		canvas.addEventListener('pointercancel', handlePointerUp);
 
-		// Initial resize
+		// Initial resize (will be called again in requestAnimationFrame, but this ensures early sizing)
 		handleResize();
 
 		return () => {
@@ -130,8 +193,8 @@ function ShaderViewer({ shaderCode }: ShaderViewerProps) {
 
 	// Load shader code whenever it changes
 	useEffect(() => {
-		if (glslCanvasRef.current && shaderCode) {
-			glslCanvasRef.current.load(shaderCode);
+		if (shaderCode) {
+			loadShaderWithDimensions(shaderCode);
 		}
 	}, [shaderCode]); // Run whenever shaderCode changes
 
