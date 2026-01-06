@@ -4,6 +4,7 @@ export interface Shader {
 	file: () => Promise<{ default: string }>;
 	filePath: string; // Path for HMR watching
 	description: string;
+	squareAspectRatio?: boolean;
 }
 
 export const shaderList: {
@@ -84,7 +85,8 @@ export const shaderList: {
 				name: 'Mondrian',
 				file: () => import('../shaders/shapes/mondrian.frag?raw'),
 				filePath: '/src/shaders/shapes/mondrian.frag',
-				description: ''
+				description: '',
+				squareAspectRatio: true
 			},
 			{
 				id: 'pentagon-twirl',
@@ -96,14 +98,15 @@ export const shaderList: {
 		]
 	},
 	{
-		label: 'Patterns',
+		label: 'Noise',
 		shaders: [
 			{
-				id: 'noise-pattern',
-				name: 'Noise Pattern',
-				file: () => import('../shaders/noise-pattern.frag?raw'),
-				filePath: '/src/shaders/noise-pattern.frag',
-				description: 'Noise-based pattern'
+				id: 'mosaic',
+				name: 'Mosaic',
+				file: () => import('../shaders/noise/mosaic.frag?raw'),
+				filePath: '/src/shaders/noise/mosaic.frag',
+				description: 'Morphs depending on mouse position',
+				squareAspectRatio: true
 			}
 		]
 	},

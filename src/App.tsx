@@ -97,7 +97,11 @@ function ShaderRoute() {
 			<main className={`main-content ${isEditorOpen ? 'editor-open' : ''}`}>
 				<div className="shader-container">
 					{activeShaderCode ? (
-						<ShaderViewer key={shaderVersion} shaderCode={activeShaderCode} />
+						<ShaderViewer
+							key={shaderVersion}
+							shaderCode={activeShaderCode}
+							squareAspectRatio={selectedShader.squareAspectRatio}
+						/>
 					) : (
 						<div className="loading">Loading shader...</div>
 					)}

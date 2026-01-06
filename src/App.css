@@ -36,14 +36,22 @@
 	width: 100%;
 	height: 100%;
 	position: relative;
-}
 
-.shader-viewer {
 	canvas {
-		width: 100%;
-		height: 100%;
+		/* Canvas size is set in JavaScript */
+		/* CSS width/height will be set dynamically to match the calculated size */
 		touch-action: none;
 		cursor: crosshair;
+		display: block;
+		/* Default to filling container when not in square mode */
+		width: 100%;
+		height: 100%;
+	}
+
+	&.square-aspect {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.touch-indicator {
