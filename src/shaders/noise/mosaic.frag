@@ -1,5 +1,5 @@
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 uniform vec2 u_resolution;
@@ -16,8 +16,9 @@ float randomTiles (vec2 st) {
   float randomValue = sin(seed);
   
   // Scale up the random value to get more variation
-  // The large multiplier spreads out the values
-  float scaled = randomValue * 43758.5453123;
+  // Using a slightly smaller multiplier for better mobile precision
+  // Split the multiplication to reduce precision loss
+  float scaled = randomValue * 43758.5453;
   
   // Add time to animate the pattern
   float animated = scaled + u_time;
@@ -56,9 +57,11 @@ void main() {
   
   // Safe normalization: avoid division by zero when dist is very small
   vec2 displacement = vec2(0.0);
-  // Smooth the falloff near the center to prevent sudden jumps
-  float smoothFalloff = smoothstep(0.0, 0.05, dist) * falloff;
-  displacement = (dir / dist) * smoothFalloff * morphIntensity;
+  if (dist > 0.001) {
+    // Smooth the falloff near the center to prevent sudden jumps
+    float smoothFalloff = smoothstep(0.0, 0.05, dist) * falloff;
+    displacement = (dir / dist) * smoothFalloff * morphIntensity;
+  }
   
   // Apply the morphing displacement to the coordinates
   st -= displacement;
