@@ -133,6 +133,18 @@ export const shaderList: {
 				]
 			},
 			{
+				label: 'Patterns',
+				shaders: [
+					{
+						id: 'circles-pattern',
+						name: 'Circles Pattern',
+						file: () => import('../shaders/patterns/circles-pattern.frag?raw'),
+						filePath: '/src/shaders/patterns/circles-pattern.frag',
+						description: ''
+					}
+				]
+			},
+			{
 				label: 'Noise',
 				shaders: [
 					{
