@@ -2,7 +2,8 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+	base: command === 'build' ? '/web-experiments/shaders/' : '/',
 	plugins: [
 		react(),
 		// Custom plugin to handle .frag file HMR
@@ -22,4 +23,4 @@ export default defineConfig({
 	],
 	assetsInclude: ['**/*.frag']
 	// Allow importing .frag files as raw text using ?raw suffix
-});
+}));
