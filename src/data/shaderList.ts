@@ -152,8 +152,7 @@ export const shaderList: {
 						name: 'Mosaic',
 						file: () => import('../shaders/noise/mosaic.frag?raw'),
 						filePath: '/src/shaders/noise/mosaic.frag',
-						description: 'Morphs depending on mouse position',
-						squareAspectRatio: true
+						description: 'Morphs depending on mouse position'
 					}
 				]
 			}

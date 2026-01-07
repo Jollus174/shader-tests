@@ -30,9 +30,13 @@ float randomTiles (vec2 st) {
 
 void main() {
   vec2 st = gl_FragCoord.xy / u_resolution.xy;
+
+  // Compensate for aspect ratio to keep circles circular
+  st.x *= u_resolution.x / u_resolution.y;
   
   // Calculate mouse position in normalized coordinates (0-1)
   vec2 mousePos = u_mouse / u_resolution;
+  mousePos.x *= u_resolution.x / u_resolution.y;
   
   // Calculate original tile position BEFORE displacement (for consistent color sampling)
   vec2 stOriginal = st;
