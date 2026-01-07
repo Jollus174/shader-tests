@@ -13,15 +13,12 @@ import './App.css';
 
 // Helper function to find shader by ID
 function findShaderById(id: string): Shader | null {
-	for (const group of shaderList) {
-		const shader = group.shaders.find((s) => s.id === id);
-		if (shader) return shader;
-	}
-	return null;
+	const allShaders = shaderList.flatMap((group) => group.shaderList.flatMap((shaderGroup) => shaderGroup.shaders));
+	return allShaders.find((s) => s.id === id) || null;
 }
 
 // Get default shader
-const defaultShader = shaderList[1].shaders[0];
+const defaultShader = shaderList[1].shaderList[0].shaders[0];
 
 function ShaderRoute() {
 	const { shaderId } = useParams<{ shaderId?: string }>();
