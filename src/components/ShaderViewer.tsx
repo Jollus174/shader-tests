@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import GlslCanvas from 'glslCanvas';
 
 interface ShaderViewerProps {
@@ -12,13 +12,6 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 	const glslCanvasRef = useRef<GlslCanvas>(null);
 	const shaderCodeRef = useRef<string>(null);
 	const squareAspectRatioRef = useRef(false);
-
-	const [touchIndicator, setTouchIndicator] = useState<{
-		x: number;
-		y: number;
-		visible: boolean;
-		fading: boolean;
-	}>({ x: 0, y: 0, visible: false, fading: false });
 
 	// Keep refs in sync with props
 	useEffect(() => {
@@ -205,29 +198,6 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 			glslCanvasRef.current.setUniform('u_mouse', x, y);
 		};
 
-		const updateTouchIndicator = (event: PointerEvent) => {
-			// Position indicator relative to container, not canvas
-			// This ensures correct positioning when canvas is centered (square aspect ratio)
-			if (!containerRef.current || !canvasRef.current) return;
-			const containerRect = containerRef.current.getBoundingClientRect();
-			const canvasRect = canvasRef.current.getBoundingClientRect();
-
-			// Calculate position relative to container
-			const x = event.clientX - containerRect.left;
-			const y = event.clientY - containerRect.top;
-
-			// Only show indicator if touch is within canvas bounds
-			const isWithinCanvas =
-				event.clientX >= canvasRect.left &&
-				event.clientX <= canvasRect.right &&
-				event.clientY >= canvasRect.top &&
-				event.clientY <= canvasRect.bottom;
-
-			if (isWithinCanvas) {
-				setTouchIndicator({ x, y, visible: true, fading: false });
-			}
-		};
-
 		const handlePointerDown = (event: PointerEvent) => {
 			// Prevent default to stop scrolling/zooming on touch devices
 			event.preventDefault();
@@ -235,7 +205,6 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 			activePointerId = event.pointerId;
 			canvas.setPointerCapture(event.pointerId);
 			setMouseUniform(event);
-			updateTouchIndicator(event);
 		};
 
 		const handlePointerMove = (event: PointerEvent) => {
@@ -243,7 +212,6 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 			if (isPointerDown && (activePointerId === null || event.pointerId === activePointerId)) {
 				event.preventDefault();
 				setMouseUniform(event);
-				updateTouchIndicator(event);
 			}
 		};
 
@@ -255,12 +223,6 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 
 			if (isPointerDown) {
 				setMouseUniform(event);
-				// Start fade out animation
-				setTouchIndicator((prev) => ({ ...prev, fading: true }));
-				// Hide after animation completes
-				setTimeout(() => {
-					setTouchIndicator((prev) => ({ ...prev, visible: false, fading: false }));
-				}, 200);
 			}
 			isPointerDown = false;
 			activePointerId = null;
@@ -298,15 +260,6 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 	return (
 		<div ref={containerRef} className={`shader-viewer ${squareAspectRatio ? 'square-aspect' : ''}`}>
 			<canvas ref={canvasRef} />
-			{touchIndicator.visible && (
-				<div
-					className={`touch-indicator ${touchIndicator.fading ? 'fading' : ''}`}
-					style={{
-						left: `${touchIndicator.x}px`,
-						top: `${touchIndicator.y}px`
-					}}
-				/>
-			)}
 		</div>
 	);
 }
