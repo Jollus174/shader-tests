@@ -153,6 +153,13 @@ export const shaderList: {
 						file: () => import('../shaders/noise/mosaic.frag?raw'),
 						filePath: '/src/shaders/noise/mosaic.frag',
 						description: 'Morphs depending on mouse position'
+					},
+					{
+						id: 'noise-lines',
+						name: 'Noise Lines',
+						file: () => import('../shaders/noise/noise-lines.frag?raw'),
+						filePath: '/src/shaders/noise/noise-lines.frag',
+						description: ''
 					}
 				]
 			}
