@@ -9,8 +9,9 @@
 	height: var(--code-editor-height);
 	background-color: #1e1e1e;
 	border-top: 1px solid rgba(255 255 255 / 0.1);
-	overflow: auto;
+	overflow: hidden;
 	flex-shrink: 0;
+	position: relative;
 
 	.cm-editor {
 		flex: 1;
@@ -27,6 +28,59 @@
 		background-color: #252526;
 		border-bottom: 1px solid rgba(255 255 255 / 0.1);
 		flex-shrink: 0;
+	}
+}
+
+.code-editor-wrapper {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+}
+
+.code-editor-resize-handle {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	cursor: ns-resize;
+	z-index: 10;
+	background-color: transparent;
+	transition: background-color 0.2s ease;
+	touch-action: none;
+	padding: 8px 0;
+	margin: -8px 0;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 40px;
+		height: 3px;
+		background-color: rgba(255 255 255 / 0.3);
+		border-radius: 2px;
+		transition: background-color 0.2s ease;
+	}
+
+	&:hover {
+		background-color: rgba(0 122 204 / 0.3);
+
+		&::before {
+			background-color: rgba(0 122 204 / 0.8);
+		}
+	}
+
+	&:active {
+		background-color: rgba(0 122 204 / 0.5);
+
+		&::before {
+			background-color: rgba(0 122 204 / 1);
+		}
 	}
 }
 

@@ -25,6 +25,7 @@ function ShaderRoute() {
 	const [isEditorOpen, setIsEditorOpen] = useState(false);
 	const [editedShaderCode, setEditedShaderCode] = useState<string | null>(null);
 	const [debouncedShaderCode, setDebouncedShaderCode] = useState<string | null>(null);
+	const [editorHeight, setEditorHeight] = useState<number | null>(null);
 	const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const selectedShader = useMemo(() => {
@@ -54,6 +55,13 @@ function ShaderRoute() {
 		}
 	}, [shaderCode]);
 
+		// Update CSS custom property when editor height changes
+	useEffect(() => {
+		if (isEditorOpen && editorHeight !== null) {
+			document.documentElement.style.setProperty('--code-editor-height', `${editorHeight}px`);
+		}
+	}, [isEditorOpen, editorHeight]);
+
 	// Debounced handler for editor changes
 	const handleEditorChange = useCallback((value: string) => {
 		// Update editor value immediately for responsive UI
@@ -79,9 +87,6 @@ function ShaderRoute() {
 		};
 	}, []);
 
-	const handleToggleEditor = useCallback(() => {
-		setIsEditorOpen((prev) => !prev);
-	}, []);
 
 	// Redirect if invalid shader ID
 	if (shaderId && !findShaderById(shaderId)) {
@@ -105,10 +110,10 @@ function ShaderRoute() {
 				</div>
 				{isEditorOpen && editorValue && (
 					<div className="code-editor-container">
-						<CodeEditor value={editorValue} onChange={handleEditorChange} />
+						<CodeEditor value={editorValue} onChange={handleEditorChange} onHeightChange={setEditorHeight} />
 					</div>
 				)}
-				<CodeToggleButton isOpen={isEditorOpen} onClick={handleToggleEditor} />
+				<CodeToggleButton isOpen={isEditorOpen} onClick={() => setIsEditorOpen((prev) => !prev)} />
 			</main>
 		</div>
 	);
