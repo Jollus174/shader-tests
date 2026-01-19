@@ -13,14 +13,12 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 	const shaderCodeRef = useRef<string>(null);
 	const squareAspectRatioRef = useRef(false);
 
-		// Load shader code whenever it changes
+	// Load shader code whenever it changes
 	useEffect(() => {
 		if (shaderCode && shaderViewerRef.current) {
-			try {
-				shaderViewerRef.current.load(shaderCode);
-			} catch (error) {
-				console.error('Failed to load shader:', error);
-			}
+			// load() now returns a boolean indicating success
+			// Errors are handled internally and logged
+			shaderViewerRef.current.load(shaderCode);
 		}
 	}, [shaderCode]);
 
@@ -94,7 +92,11 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 			const viewer = new WebGLShaderViewer(canvas);
 			shaderViewerRef.current = viewer;
 
+			// Start render loop immediately (even without shader, it will show black)
+			viewer.start();
+
 			// Load initial shader if available
+			// Errors are handled internally by the load method
 			if (shaderCodeRef.current) {
 				viewer.load(shaderCodeRef.current);
 			}
@@ -144,12 +146,22 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 		};
 
 		const handlePointerMove = (event: PointerEvent) => {
-			// Update if pointer is captured or if this is our tracked pointer
+			// Only process events on the canvas or its container
+			const target = event.target as HTMLElement;
+			if (target !== canvas && !container.contains(target)) {
+				return;
+			}
+
+			// For mouse, always update when moving over canvas (even if not clicking)
+			// For touch, only update if pointer is captured or tracked
+			const isMouse = event.pointerType === 'mouse';
 			const hasCapture = canvas.hasPointerCapture(event.pointerId);
 			const isTrackedPointer = isPointerDown && (activePointerId === null || event.pointerId === activePointerId);
 
-			if (hasCapture || isTrackedPointer) {
-				event.preventDefault();
+			if (isMouse || hasCapture || isTrackedPointer) {
+				if (!isMouse) {
+					event.preventDefault();
+				}
 				updateMousePosition(event);
 			}
 		};
@@ -176,7 +188,7 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 
 		// Add event listeners
 		canvas.addEventListener('pointerdown', handlePointerDown, { passive: false });
-		canvas.addEventListener('pointermove', handlePointerMove, { passive: false });
+		canvas.addEventListener('pointermove', handlePointerMove);
 		canvas.addEventListener('pointerup', handlePointerUp);
 		canvas.addEventListener('pointerleave', handlePointerUp);
 		canvas.addEventListener('pointercancel', handlePointerUp);

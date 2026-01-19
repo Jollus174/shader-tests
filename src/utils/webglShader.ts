@@ -82,7 +82,7 @@ export class WebGLShaderViewer {
 		return program;
 	}
 
-	load(fragmentSource: string, vertexSource?: string) {
+	load(fragmentSource: string, vertexSource?: string): boolean {
 		const { gl } = this;
 
 		// Default vertex shader (full-screen quad)
@@ -95,44 +95,65 @@ export class WebGLShaderViewer {
 
 		const vertSource = vertexSource || defaultVertex;
 
-		// Clean up old program
-		if (this.program) {
-			gl.deleteProgram(this.program);
-			this.program = null;
-		}
+		try {
+			// Try to create new program
+			const newProgram = this.createProgram(vertSource, fragmentSource);
 
-		this.uniforms.clear();
-
-		// Create new program
-		this.program = this.createProgram(vertSource, fragmentSource);
-		gl.useProgram(this.program);
-
-		// Set up geometry (full-screen quad)
-		const positionBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-		const positions = [-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1];
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-		const positionLocation = gl.getAttribLocation(this.program, 'a_position');
-		gl.enableVertexAttribArray(positionLocation);
-		gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-		// Cache uniform locations
-		const uniformNames = ['u_time', 'u_resolution', 'u_mouse'];
-		for (const name of uniformNames) {
-			const location = gl.getUniformLocation(this.program, name);
-			if (location !== null) {
-				this.uniforms.set(name, location);
+			// If successful, clean up old program
+			if (this.program) {
+				gl.deleteProgram(this.program);
+				this.program = null;
 			}
-		}
 
-		// Start render loop
-		this.start();
+			this.uniforms.clear();
+
+			// Use the new program
+			this.program = newProgram;
+			gl.useProgram(this.program);
+
+			// Set up geometry (full-screen quad)
+			const positionBuffer = gl.createBuffer();
+			gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+			const positions = [-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1];
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+			const positionLocation = gl.getAttribLocation(this.program, 'a_position');
+			gl.enableVertexAttribArray(positionLocation);
+			gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+			// Cache uniform locations
+			const uniformNames = ['u_time', 'u_resolution', 'u_mouse'];
+			for (const name of uniformNames) {
+				const location = gl.getUniformLocation(this.program, name);
+				if (location !== null) {
+					this.uniforms.set(name, location);
+				}
+			}
+
+			return true;
+		} catch (error) {
+			// If compilation/linking fails, keep the old program running
+			// Don't delete the existing program, just log the error
+			console.error('Shader compilation error:', error);
+			return false;
+		}
 	}
 
 	private render() {
 		const { gl, canvas } = this;
-		if (!this.program) return;
+		
+		// Always continue the render loop, even if program is invalid
+		// This ensures we can recover when valid code is loaded
+		this.animationFrameId = requestAnimationFrame(() => this.render());
+
+		// Only render if we have a valid program
+		if (!this.program) {
+			// Clear to black if no valid program
+			this.updateViewport();
+			gl.clearColor(0, 0, 0, 1);
+			gl.clear(gl.COLOR_BUFFER_BIT);
+			return;
+		}
 
 		this.updateViewport();
 		gl.useProgram(this.program);
@@ -156,8 +177,6 @@ export class WebGLShaderViewer {
 
 		// Draw
 		gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-		this.animationFrameId = requestAnimationFrame(() => this.render());
 	}
 
 	start() {
