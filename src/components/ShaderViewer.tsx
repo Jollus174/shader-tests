@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import GlslCanvas from 'glslCanvas';
+import { WebGLShaderViewer } from '../utils/webglShader';
 
 interface ShaderViewerProps {
 	shaderCode: string | null;
@@ -9,90 +9,20 @@ interface ShaderViewerProps {
 function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const glslCanvasRef = useRef<GlslCanvas>(null);
+	const shaderViewerRef = useRef<WebGLShaderViewer | null>(null);
 	const shaderCodeRef = useRef<string>(null);
 	const squareAspectRatioRef = useRef(false);
 
-	// Keep refs in sync with props
+		// Load shader code whenever it changes
 	useEffect(() => {
-		shaderCodeRef.current = shaderCode;
-		squareAspectRatioRef.current = squareAspectRatio;
-	}, [shaderCode, squareAspectRatio]);
-
-	// Reusable function to load shader with proper dimension checking
-	const loadShaderWithDimensions = (code: string | null) => {
-		if (!glslCanvasRef.current || !code || !canvasRef.current || !containerRef.current) {
-			return;
-		}
-
-		const containerWidth = containerRef.current.offsetWidth;
-		const containerHeight = containerRef.current.offsetHeight;
-
-		if (containerWidth > 0 && containerHeight > 0) {
-			let width: number;
-			let height: number;
-
-			if (squareAspectRatioRef.current) {
-				// Ensure 1:1 aspect ratio by using the minimum dimension
-				const size = Math.min(containerWidth, containerHeight);
-				width = size;
-				height = size;
-			} else {
-				// Use full container dimensions
-				width = containerWidth;
-				height = containerHeight;
+		if (shaderCode && shaderViewerRef.current) {
+			try {
+				shaderViewerRef.current.load(shaderCode);
+			} catch (error) {
+				console.error('Failed to load shader:', error);
 			}
-
-			canvasRef.current.width = width;
-			canvasRef.current.height = height;
-			// Set CSS dimensions to match for proper display
-			canvasRef.current.style.width = `${width}px`;
-			canvasRef.current.style.height = `${height}px`;
-			// Use requestAnimationFrame to ensure WebGL context is ready
-			requestAnimationFrame(() => {
-				if (glslCanvasRef.current && code) {
-					glslCanvasRef.current.load(code);
-				}
-			});
-		} else {
-			// If dimensions aren't ready yet, wait a frame and try again
-			requestAnimationFrame(() => {
-				if (glslCanvasRef.current && code && canvasRef.current && containerRef.current) {
-					const w = containerRef.current.offsetWidth;
-					const h = containerRef.current.offsetHeight;
-					if (w > 0 && h > 0) {
-						let width: number;
-						let height: number;
-
-						if (squareAspectRatioRef.current) {
-							// Ensure 1:1 aspect ratio by using the minimum dimension
-							const size = Math.min(w, h);
-							width = size;
-							height = size;
-						} else {
-							// Use full container dimensions
-							width = w;
-							height = h;
-						}
-
-						canvasRef.current.width = width;
-						canvasRef.current.height = height;
-						// Set CSS dimensions to match for proper display
-						canvasRef.current.style.width = `${width}px`;
-						canvasRef.current.style.height = `${height}px`;
-						glslCanvasRef.current.load(code);
-					}
-				}
-			});
 		}
-	};
-
-	// Load shader code whenever it changes
-	useEffect(() => {
-		if (shaderCode) {
-			loadShaderWithDimensions(shaderCode);
-		}
-	}, [shaderCode]); // Run whenever shaderCode changes
+	}, [shaderCode]);
 
 	// Trigger resize when squareAspectRatio changes
 	useEffect(() => {
@@ -112,148 +42,157 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 					height = containerHeight;
 				}
 
-				canvasRef.current.width = width;
-				canvasRef.current.height = height;
 				canvasRef.current.style.width = `${width}px`;
 				canvasRef.current.style.height = `${height}px`;
 			}
 		}
 	}, [squareAspectRatio]);
 
-	// Initialize canvas and GlslCanvas once
+	// Keep refs in sync with props
+	useEffect(() => {
+		shaderCodeRef.current = shaderCode;
+		squareAspectRatioRef.current = squareAspectRatio;
+	}, [shaderCode, squareAspectRatio]);
+
+	// Initialize WebGL shader viewer
 	useEffect(() => {
 		if (!containerRef.current || !canvasRef.current) return;
 
 		const canvas = canvasRef.current;
+		const container = containerRef.current;
 
-		// Handle window resize
+		// Handle resize
 		const handleResize = () => {
-			if (canvasRef.current && containerRef.current) {
-				const containerWidth = containerRef.current.offsetWidth;
-				const containerHeight = containerRef.current.offsetHeight;
-				if (containerWidth > 0 && containerHeight > 0) {
-					let width: number;
-					let height: number;
+			if (!canvas || !container) return;
 
-					if (squareAspectRatioRef.current) {
-						// Ensure 1:1 aspect ratio by using the minimum dimension
-						const size = Math.min(containerWidth, containerHeight);
-						width = size;
-						height = size;
-					} else {
-						// Use full container dimensions
-						width = containerWidth;
-						height = containerHeight;
-					}
+			const containerWidth = container.offsetWidth;
+			const containerHeight = container.offsetHeight;
 
-					canvasRef.current.width = width;
-					canvasRef.current.height = height;
-					// Set CSS dimensions to match for proper display
-					canvasRef.current.style.width = `${width}px`;
-					canvasRef.current.style.height = `${height}px`;
+			if (containerWidth > 0 && containerHeight > 0) {
+				let width: number;
+				let height: number;
+
+				if (squareAspectRatioRef.current) {
+					const size = Math.min(containerWidth, containerHeight);
+					width = size;
+					height = size;
+				} else {
+					width = containerWidth;
+					height = containerHeight;
 				}
+
+				canvas.style.width = `${width}px`;
+				canvas.style.height = `${height}px`;
 			}
 		};
 
-		// Ensure canvas is sized before creating GlslCanvas
+		// Initial resize
 		handleResize();
 
-		// Use requestAnimationFrame to ensure dimensions are set before initializing GlslCanvas
-		// This is important when switching shaders, as the component remounts
-		requestAnimationFrame(() => {
-			if (!canvasRef.current || !containerRef.current) return;
+		// Create shader viewer
+		try {
+			const viewer = new WebGLShaderViewer(canvas);
+			shaderViewerRef.current = viewer;
 
-			// Double-check dimensions are set
-			handleResize();
-
-			// Initialize GlslCanvas after ensuring canvas is ready
-			const sandbox = new GlslCanvas(canvas);
-			glslCanvasRef.current = sandbox;
-
-			// If shader code is already available, load it now
-			// We use shaderCodeRef to get the current value (not stale closure value)
+			// Load initial shader if available
 			if (shaderCodeRef.current) {
-				requestAnimationFrame(() => {
-					loadShaderWithDimensions(shaderCodeRef.current);
-				});
+				viewer.load(shaderCodeRef.current);
 			}
-		});
-
-		// Use ResizeObserver for better resize handling
-		const resizeObserver = new ResizeObserver(handleResize);
-		if (containerRef.current) {
-			resizeObserver.observe(containerRef.current);
+		} catch (error) {
+			console.error('Failed to initialize WebGL shader viewer:', error);
 		}
 
-		// Handle mouse/touch interactions for u_mouse
+		// Set up resize observer
+		const resizeObserver = new ResizeObserver(handleResize);
+		resizeObserver.observe(container);
+
+		// Handle pointer events for mouse uniform
 		let isPointerDown = false;
 		let activePointerId: number | null = null;
 
-		const setMouseUniform = (event: PointerEvent) => {
-			if (!glslCanvasRef.current) return;
+		const updateMousePosition = (event: PointerEvent) => {
+			if (!shaderViewerRef.current || !canvas) return;
+
 			const rect = canvas.getBoundingClientRect();
 			const x = ((event.clientX - rect.left) / rect.width) * canvas.width;
-			// Flip y to match gl_FragCoord coordinate system (bottom-left origin)
-			const y = canvas.height - ((event.clientY - rect.top) / rect.height) * canvas.height;
-			glslCanvasRef.current.setUniform('u_mouse', x, y);
+			const y = ((event.clientY - rect.top) / rect.height) * canvas.height;
+
+			shaderViewerRef.current.setMouse(x, y);
 		};
 
 		const handlePointerDown = (event: PointerEvent) => {
-			// Prevent default to stop scrolling/zooming on touch devices
+			// Only process events on the canvas or its container
+			const target = event.target as HTMLElement;
+			if (target !== canvas && !container.contains(target)) {
+				return;
+			}
+
 			event.preventDefault();
 			isPointerDown = true;
 			activePointerId = event.pointerId;
-			canvas.setPointerCapture(event.pointerId);
-			setMouseUniform(event);
+
+			// Capture pointer for touch devices to prevent scrolling
+			if (event.pointerType === 'touch') {
+				try {
+					canvas.setPointerCapture(event.pointerId);
+				} catch (e) {
+					// Ignore capture errors
+				}
+			}
+
+			updateMousePosition(event);
 		};
 
 		const handlePointerMove = (event: PointerEvent) => {
-			// Update uniform if this is the active pointer or if pointer is down
-			if (isPointerDown && (activePointerId === null || event.pointerId === activePointerId)) {
+			// Update if pointer is captured or if this is our tracked pointer
+			const hasCapture = canvas.hasPointerCapture(event.pointerId);
+			const isTrackedPointer = isPointerDown && (activePointerId === null || event.pointerId === activePointerId);
+
+			if (hasCapture || isTrackedPointer) {
 				event.preventDefault();
-				setMouseUniform(event);
+				updateMousePosition(event);
 			}
 		};
 
 		const handlePointerUp = (event: PointerEvent) => {
-			// Only handle if this is the active pointer
-			if (activePointerId !== null && event.pointerId !== activePointerId) {
-				return;
-			}
+			// Handle if pointer is captured or if this is our tracked pointer
+			const hasCapture = canvas.hasPointerCapture(event.pointerId);
+			const isTrackedPointer = activePointerId !== null && event.pointerId === activePointerId;
 
-			if (isPointerDown) {
-				setMouseUniform(event);
-			}
-			isPointerDown = false;
-			activePointerId = null;
-			if (canvas.hasPointerCapture(event.pointerId)) {
-				canvas.releasePointerCapture(event.pointerId);
+			if (hasCapture || isTrackedPointer) {
+				updateMousePosition(event);
+				isPointerDown = false;
+				activePointerId = null;
+
+				if (hasCapture) {
+					try {
+						canvas.releasePointerCapture(event.pointerId);
+					} catch (e) {
+						// Ignore release errors
+					}
+				}
 			}
 		};
 
-		// Use { passive: false } to allow preventDefault() on touch events
+		// Add event listeners
 		canvas.addEventListener('pointerdown', handlePointerDown, { passive: false });
 		canvas.addEventListener('pointermove', handlePointerMove, { passive: false });
 		canvas.addEventListener('pointerup', handlePointerUp);
 		canvas.addEventListener('pointerleave', handlePointerUp);
 		canvas.addEventListener('pointercancel', handlePointerUp);
 
-		// Initial resize (will be called again in requestAnimationFrame, but this ensures early sizing)
-		handleResize();
-
 		return () => {
 			resizeObserver.disconnect();
-			canvas.removeEventListener('pointerdown', handlePointerDown, { passive: false } as EventListenerOptions);
-			canvas.removeEventListener('pointermove', handlePointerMove, { passive: false } as EventListenerOptions);
+			canvas.removeEventListener('pointerdown', handlePointerDown);
+			canvas.removeEventListener('pointermove', handlePointerMove);
 			canvas.removeEventListener('pointerup', handlePointerUp);
 			canvas.removeEventListener('pointerleave', handlePointerUp);
 			canvas.removeEventListener('pointercancel', handlePointerUp);
 
-			// Clean up GlslCanvas reference
-			// Note: We don't explicitly lose the WebGL context here because it makes
-			// the canvas unusable. Instead, we rely on React's key prop to recreate
-			// the component (and thus the canvas) when needed, which naturally cleans up old contexts.
-			glslCanvasRef.current = null;
+			if (shaderViewerRef.current) {
+				shaderViewerRef.current.destroy();
+				shaderViewerRef.current = null;
+			}
 		};
 	}, []); // Only run once on mount
 
