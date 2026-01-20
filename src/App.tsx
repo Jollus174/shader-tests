@@ -110,7 +110,12 @@ function ShaderRoute() {
 				</div>
 				{isEditorOpen && editorValue && (
 					<div className="code-editor-container">
-						<CodeEditor value={editorValue} onChange={handleEditorChange} onHeightChange={setEditorHeight} />
+						<CodeEditor 
+							value={editorValue} 
+							onChange={handleEditorChange} 
+							onHeightChange={setEditorHeight}
+							shaderId={selectedShader.id}
+						/>
 					</div>
 				)}
 				<CodeToggleButton isOpen={isEditorOpen} onClick={() => setIsEditorOpen((prev) => !prev)} />

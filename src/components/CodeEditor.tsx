@@ -11,9 +11,10 @@ interface CodeEditorProps {
 	onChange: (value: string) => void;
 	language?: string;
 	onHeightChange?: (height: number) => void;
+	shaderId?: string; // Used to detect shader switches
 }
 
-function CodeEditor({ value, onChange, onHeightChange }: CodeEditorProps) {
+function CodeEditor({ value, onChange, onHeightChange, shaderId }: CodeEditorProps) {
 	const [lineWrapping, setLineWrapping] = useState(true);
 	const [editorHeight, setEditorHeight] = useState<number | null>(null);
 	const editorViewRef = useRef<EditorView | null>(null);
@@ -138,9 +139,9 @@ function CodeEditor({ value, onChange, onHeightChange }: CodeEditorProps) {
 		document.body.style.userSelect = '';
 	};
 	
-		// Scroll to top when value changes (shader switch)
+	// Scroll to top only when shader changes (not on user edits)
 	useEffect(() => {
-		if (editorViewRef.current) {
+		if (editorViewRef.current && shaderId !== undefined) {
 			// Use requestAnimationFrame to ensure the view is ready
 			requestAnimationFrame(() => {
 				if (editorViewRef.current) {
@@ -151,7 +152,7 @@ function CodeEditor({ value, onChange, onHeightChange }: CodeEditorProps) {
 				}
 			});
 		}
-	}, [value]);
+	}, [shaderId]);
 
 	// Initialize height from CSS variable on mount
 	useEffect(() => {
