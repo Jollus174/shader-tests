@@ -4,9 +4,10 @@ import { WebGLShaderViewer } from '../utils/webglShader';
 interface ShaderViewerProps {
 	shaderCode: string | null;
 	squareAspectRatio?: boolean;
+	onError?: (error: string | null) => void;
 }
 
-function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerProps) {
+function ShaderViewer({ shaderCode, squareAspectRatio = false, onError }: ShaderViewerProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const shaderViewerRef = useRef<WebGLShaderViewer | null>(null);
@@ -16,11 +17,18 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 	// Load shader code whenever it changes
 	useEffect(() => {
 		if (shaderCode && shaderViewerRef.current) {
-			// load() now returns a boolean indicating success
-			// Errors are handled internally and logged
-			shaderViewerRef.current.load(shaderCode);
+			// load() now returns an object with success and error info
+			const result = shaderViewerRef.current.load(shaderCode);
+			if (result.success) {
+				onError?.(null); // Clear error on success
+			} else {
+				onError?.(result.error || 'Unknown shader compilation error');
+			}
+		} else if (!shaderCode) {
+			// Clear error when shader code is null
+			onError?.(null);
 		}
-	}, [shaderCode]);
+	}, [shaderCode, onError]);
 
 	// Trigger resize when squareAspectRatio changes
 	useEffect(() => {
@@ -96,9 +104,13 @@ function ShaderViewer({ shaderCode, squareAspectRatio = false }: ShaderViewerPro
 			viewer.start();
 
 			// Load initial shader if available
-			// Errors are handled internally by the load method
 			if (shaderCodeRef.current) {
-				viewer.load(shaderCodeRef.current);
+				const result = viewer.load(shaderCodeRef.current);
+				if (result.success) {
+					onError?.(null); // Clear error on success
+				} else {
+					onError?.(result.error || 'Unknown shader compilation error');
+				}
 			}
 		} catch (error) {
 			console.error('Failed to initialize WebGL shader viewer:', error);

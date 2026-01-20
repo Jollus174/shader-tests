@@ -12,9 +12,10 @@ interface CodeEditorProps {
 	language?: string;
 	onHeightChange?: (height: number) => void;
 	shaderId?: string; // Used to detect shader switches
+	error?: string | null; // Shader compilation error message
 }
 
-function CodeEditor({ value, onChange, onHeightChange, shaderId }: CodeEditorProps) {
+function CodeEditor({ value, onChange, onHeightChange, shaderId, error }: CodeEditorProps) {
 	const [lineWrapping, setLineWrapping] = useState(true);
 	const [editorHeight, setEditorHeight] = useState<number | null>(null);
 	const editorViewRef = useRef<EditorView | null>(null);
@@ -187,6 +188,12 @@ function CodeEditor({ value, onChange, onHeightChange, shaderId }: CodeEditorPro
 				onTouchStart={handleResizeStartTouch}
 				title="Drag to resize"
 			/>
+			{error && (
+				<div className="shader-error-box">
+					<div className="shader-error-header">Shader Error</div>
+					<div className="shader-error-message">{error}</div>
+				</div>
+			)}
 			<div className="code-editor-controls">
 				<label className="line-wrap-toggle">
 					<input

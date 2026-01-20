@@ -26,6 +26,7 @@ function ShaderRoute() {
 	const [editedShaderCode, setEditedShaderCode] = useState<string | null>(null);
 	const [debouncedShaderCode, setDebouncedShaderCode] = useState<string | null>(null);
 	const [editorHeight, setEditorHeight] = useState<number | null>(null);
+	const [shaderError, setShaderError] = useState<string | null>(null);
 	const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const selectedShader = useMemo(() => {
@@ -52,6 +53,8 @@ function ShaderRoute() {
 				clearTimeout(debounceTimerRef.current);
 				debounceTimerRef.current = null;
 			}
+			// Clear error when shader changes
+			setShaderError(null);
 		}
 	}, [shaderCode]);
 
@@ -103,6 +106,7 @@ function ShaderRoute() {
 							key={shaderVersion}
 							shaderCode={activeShaderCode}
 							squareAspectRatio={selectedShader.squareAspectRatio}
+							onError={setShaderError}
 						/>
 					) : (
 						<div className="loading">Loading shader...</div>
@@ -115,6 +119,7 @@ function ShaderRoute() {
 							onChange={handleEditorChange} 
 							onHeightChange={setEditorHeight}
 							shaderId={selectedShader.id}
+							error={shaderError}
 						/>
 					</div>
 				)}

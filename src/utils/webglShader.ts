@@ -82,7 +82,7 @@ export class WebGLShaderViewer {
 		return program;
 	}
 
-	load(fragmentSource: string, vertexSource?: string): boolean {
+	load(fragmentSource: string, vertexSource?: string): { success: boolean; error?: string } {
 		const { gl } = this;
 
 		// Default vertex shader (full-screen quad)
@@ -130,12 +130,13 @@ export class WebGLShaderViewer {
 				}
 			}
 
-			return true;
+			return { success: true };
 		} catch (error) {
 			// If compilation/linking fails, keep the old program running
 			// Don't delete the existing program, just log the error
-			console.error('Shader compilation error:', error);
-			return false;
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.error('Shader compilation error:', errorMessage);
+			return { success: false, error: errorMessage };
 		}
 	}
 
