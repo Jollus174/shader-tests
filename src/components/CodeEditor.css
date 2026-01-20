@@ -21,6 +21,9 @@
 
 	.cm-scroller {
 		background-color: #1e1e1e;
+		/* Prevent Chrome's aggressive scroll-into-view on mobile */
+		scroll-behavior: auto;
+		-webkit-overflow-scrolling: touch;
 	}
 
 	.shader-error-box {
