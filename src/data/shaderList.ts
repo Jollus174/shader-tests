@@ -155,11 +155,18 @@ export const shaderList: {
 						description: 'Morphs depending on mouse position'
 					},
 					{
+						id: 'rotating-squares',
+						name: 'Rotating Squares',
+						file: () => import('../shaders/noise/rotating-squares.frag?raw'),
+						filePath: '/src/shaders/noise/rotating-squares.frag',
+						description: ''
+					},
+					{
 						id: 'noise-lines',
 						name: 'Noise Lines',
 						file: () => import('../shaders/noise/noise-lines.frag?raw'),
 						filePath: '/src/shaders/noise/noise-lines.frag',
-						description: ''
+						description: 'Colours change depending on mouse position'
 					}
 				]
 			}
