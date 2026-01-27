@@ -19,31 +19,48 @@ void main() {
   vec2 ipos = floor(st);
   vec2 fpos = fract(st);
 
-  // Rotation animation: 6-second cycle
-  // 0-1s: rotate 0° to 180°, 1-3s: hold at 180°, 3-4s: rotate 180° to 360°, 4-6s: hold at 0°
-  float cycle = mod(u_time, 6.0);
+  // Rotation animation: 8-second cycle
+  // 0-1s: rotate 0° to 90°, 1-2s: hold at 90°, 2-3s: rotate 90° to 180°, 3-4s: hold at 180°,
+  // 4-5s: rotate 180° to 270°, 5-6s: hold at 270°, 6-7s: rotate 270° to 360°, 7-8s: hold at 0°
+  float cycle = mod(u_time, 8.0);
   float baseAngle = 0.0;
   float rotationProgress = 0.0;
   
   if (cycle < 1.0) {
-    // First rotation: 0° to 180°
+    // First rotation: 0° to 90°
     rotationProgress = smoothstep(0.0, 1.0, cycle);
     baseAngle = 0.0;
+  } else if (cycle < 2.0) {
+    // Hold at 90°
+    baseAngle = PI / 2.0; // π/2 radians = 90 degrees
+    rotationProgress = 0.0;
   } else if (cycle < 3.0) {
+    // Second rotation: 90° to 180°
+    rotationProgress = smoothstep(0.0, 1.0, cycle - 2.0);
+    baseAngle = PI / 2.0; // Start from 90°
+  } else if (cycle < 4.0) {
     // Hold at 180°
     baseAngle = PI; // π radians = 180 degrees
     rotationProgress = 0.0;
-  } else if (cycle < 4.0) {
-    // Second rotation: 180° to 360° (0°)
-    rotationProgress = smoothstep(0.0, 1.0, cycle - 3.0);
+  } else if (cycle < 5.0) {
+    // Third rotation: 180° to 270°
+    rotationProgress = smoothstep(0.0, 1.0, cycle - 4.0);
     baseAngle = PI; // Start from 180°
+  } else if (cycle < 6.0) {
+    // Hold at 270°
+    baseAngle = 3.0 * PI / 2.0; // 3π/2 radians = 270 degrees
+    rotationProgress = 0.0;
+  } else if (cycle < 7.0) {
+    // Fourth rotation: 270° to 360° (0°)
+    rotationProgress = smoothstep(0.0, 1.0, cycle - 6.0);
+    baseAngle = 3.0 * PI / 2.0; // Start from 270°
   } else {
     // Hold at 0° (360°)
     baseAngle = 0.0;
     rotationProgress = 0.0;
   }
   
-  float angle = baseAngle + rotationProgress * PI; // Add 180° rotation
+  float angle = baseAngle + rotationProgress * (PI / 2.0); // Add 90° rotation
   
   // Rotate fpos around center (0.5, 0.5)s
   vec2 center = vec2(0.5);
