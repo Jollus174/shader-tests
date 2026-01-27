@@ -76,7 +76,7 @@ void main() {
 
   // Assign a random value based on the displaced integer coord
   // This creates the visual morphing effect
-  vec3 color = vec3(.75 - randomTiles(ipos), 0.25, 0.75);
+  vec3 color = vec3(.75 - randomTiles(ipos), 0.0, 0.75);
   
   // Check if this tile is being directly hovered by the mouse (use original position)
   bool isHovered = (iposOriginal.x == mouseTilePos.x && iposOriginal.y == mouseTilePos.y);

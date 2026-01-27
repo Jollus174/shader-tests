@@ -141,7 +141,14 @@ export const shaderList: {
 						file: () => import('../shaders/patterns/circles-pattern.frag?raw'),
 						filePath: '/src/shaders/patterns/circles-pattern.frag',
 						description: ''
-					}
+					},
+					{
+						id: 'rotating-squares',
+						name: 'Rotating Squares',
+						file: () => import('../shaders/noise/rotating-squares.frag?raw'),
+						filePath: '/src/shaders/noise/rotating-squares.frag',
+						description: ''
+					},
 				]
 			},
 			{
@@ -153,13 +160,6 @@ export const shaderList: {
 						file: () => import('../shaders/noise/mosaic.frag?raw'),
 						filePath: '/src/shaders/noise/mosaic.frag',
 						description: 'Morphs depending on mouse position'
-					},
-					{
-						id: 'rotating-squares',
-						name: 'Rotating Squares',
-						file: () => import('../shaders/noise/rotating-squares.frag?raw'),
-						filePath: '/src/shaders/noise/rotating-squares.frag',
-						description: ''
 					},
 					{
 						id: 'noise-lines',
