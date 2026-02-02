@@ -145,10 +145,10 @@ export const shaderList: {
 					{
 						id: 'rotating-squares',
 						name: 'Rotating Squares',
-						file: () => import('../shaders/noise/rotating-squares.frag?raw'),
-						filePath: '/src/shaders/noise/rotating-squares.frag',
+						file: () => import('../shaders/patterns/rotating-squares.frag?raw'),
+						filePath: '/src/shaders/patterns/rotating-squares.frag',
 						description: ''
-					},
+					}
 				]
 			},
 			{
@@ -167,6 +167,13 @@ export const shaderList: {
 						file: () => import('../shaders/noise/noise-lines.frag?raw'),
 						filePath: '/src/shaders/noise/noise-lines.frag',
 						description: 'Colours change depending on mouse position'
+					},
+					{
+						id: 'cellular-noise',
+						name: 'Cellular Noise',
+						file: () => import('../shaders/noise/cellular-noise.frag?raw'),
+						filePath: '/src/shaders/noise/cellular-noise.frag',
+						description: 'Contrast shifts depending on mouse position'
 					}
 				]
 			}

@@ -13,7 +13,7 @@ void main() {
   // Adjust for aspect ratio
   st.x *= u_resolution.x / u_resolution.y;
 
-  vec2 grid = vec2(14., 14.);
+  vec2 grid = vec2(28.);
   st *= grid;
 
   vec2 ipos = floor(st);

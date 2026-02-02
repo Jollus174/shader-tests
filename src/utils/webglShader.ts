@@ -142,7 +142,7 @@ export class WebGLShaderViewer {
 
 	private render() {
 		const { gl, canvas } = this;
-		
+
 		// Always continue the render loop, even if program is invalid
 		// This ensures we can recover when valid code is loaded
 		this.animationFrameId = requestAnimationFrame(() => this.render());
