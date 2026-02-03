@@ -174,6 +174,13 @@ export const shaderList: {
 						file: () => import('../shaders/noise/cellular-noise.frag?raw'),
 						filePath: '/src/shaders/noise/cellular-noise.frag',
 						description: 'Contrast shifts depending on mouse position'
+					},
+					{
+						id: 'cloud-noise',
+						name: 'Cloud Noise',
+						file: () => import('../shaders/noise/cloud-noise.frag?raw'),
+						filePath: '/src/shaders/noise/cloud-noise.frag',
+						description: 'Colour and flow evolution controlled by mouse'
 					}
 				]
 			}
